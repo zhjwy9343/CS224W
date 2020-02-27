@@ -27,8 +27,11 @@ if __name__ == '__main__':
     # Build Wiki Graph
     G1 = snap.LoadEdgeList(snap.PNGraph, DATA_PATH, 0, 1)
 
-    DegToCntV = snap.TIntPrV()
+    # use Snap.py own plot tools, but not shown.
+    snap.PlotOutDegDistr(G1, 'Wiki', 'Wiki')
 
+    # So I draw everything by my own.
+    DegToCntV = snap.TIntPrV()
     snap.GetOutDegCnt(G1, DegToCntV)
 
     out_deg = []
@@ -60,8 +63,8 @@ if __name__ == '__main__':
 
     out_deg_dis['Out_Deg_Fit'] = pd.Series(preds)
 
-    print(out_deg_dis.head(-10))
-    print(out_deg_dis.shape)
+    # print(out_deg_dis.head(-10))
+    # print(out_deg_dis.shape)
 
     # plot_log_log(out_deg_dis, 'Out_Degree_Value', "Out_Deg_Fit"))
     ax = out_deg_dis.plot('Out_Degree_Value', 'Out_Deg_Fit', lw=2, color='red',logy=True, logx=True, figsize=(10,10),
