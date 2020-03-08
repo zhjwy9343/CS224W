@@ -15,6 +15,24 @@ import numpy as np
 import itertools as itt
 
 
+def create_snap_graph(node_list, edge_list):
+    graph = snap.PUNGraph.New()
+
+    for node in node_list:
+        graph.AddNode(node)
+
+    # Have to complain that SNAP is sooooooo wierd in its data type! has to use int() to convert a variable so that
+    # the AddEdge fn can work. Tooooo noisy!
+    for edge in edge_list:
+        src = int(edge[0])
+        dst = int(edge[1])
+        graph.AddEdge(src, dst)
+
+    print("Create a graph with nodes: {}".format(len(list(graph.Nodes()))))
+    print("Create a graph with nodes: {}".format(len(list(graph.Edges()))))
+    return graph
+
+
 class ER_graph(object):
     """
     A class of Erdos-Renyi random network.
@@ -36,7 +54,33 @@ class ER_graph(object):
         self.graph = self._generate_graph()
 
     def _generate_graph(self):
+        """
+        This version use random pick instead of full combination.
+        :return:
+        """
+        # create nodes
+        node_list = np.arange(self.n)
 
+        # create edges randomly
+        count = 0
+        edge_set = set()
+
+        while count < self.e:
+            # randint is half open, but random_integers is full closure
+            rand_pair = np.random.randint(low=0, high=self.n, size=2)
+            if (rand_pair[0] != rand_pair[1]) and (not ((rand_pair[0], rand_pair[1]) in edge_set)):
+                edge_set.add((rand_pair[0], rand_pair[1]))
+                count += 1
+
+        # set an SNAP graph
+        return create_snap_graph(node_list.tolist(), list(edge_set))
+
+
+    def _generate_graph_v1(self):
+        """
+        This version is too slow, becuase it create the full combination of nodes, which is n^2.
+        :return:
+        """
         print('start...')
         # permunate all edges, size = n(n-1)/2
         node_list = np.arange(self.n)
@@ -57,18 +101,7 @@ class ER_graph(object):
 
         # create a SNAP graph and set nodes and edges
         print('set a SNAP undirected graph')
-        graph = snap.TUNGraph.New()
-
-        for node in node_list.tolist():
-            graph.AddNode(node)
-
-        for edge in edge_list.tolist():
-            src = edge[0]
-            dst = edge[1]
-            graph.AddEdge(src, dst)
-
-        # print(len(list(graph.Nodes())))
-        return graph
+        return create_snap_graph(node_list.tolist(), edge_list.tolist())
 
 
 class small_world_graph(object):
@@ -97,7 +130,6 @@ class small_world_graph(object):
 
         # get node list with given size
         node_list = np.arange(self.n)
-        print(node_list[:10])
 
         # edge with neighbors, use (i + n +-1) % n to get neighbors
         # SNAP undirected graph can detect duplicate edges, but here I will use
@@ -122,28 +154,13 @@ class small_world_graph(object):
 
         count = 0
         while count < rest_edges:
-            rand_pair = np.random.random_integers(low=0, high=self.n, size=2)
+            rand_pair = np.random.randint(low=0, high=self.n, size=2)
             if (rand_pair[0] != rand_pair[1]) and (not ((rand_pair[0], rand_pair[1]) in edge_set)):
                 edge_set.add((rand_pair[0], rand_pair[1]))
                 count += 1
 
         # create SNAP graph
-        graph = snap.TUNGraph.New()
-
-        for node in node_list.tolist():
-            graph.AddNode(node)
-
-        print(len(list(graph.Nodes())))
-
-        # Have to complain that SNAP is sooooooo wierd in its data type! has to use int() to convert a variable so that
-        # the AddEdge fn can work. Tooooo noisy!
-        for edge in list(edge_set):
-            src = int(edge[0])
-            dst = int(edge[1])
-            graph.AddEdge(src, dst)
-
-        print(len(list(graph.Edges())))
-        return graph
+        return create_snap_graph(node_list.tolist(), list(edge_set))
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@
 import snap
 import numpy as np
 import matplotlib.pyplot as plt
+from HW1.Q1 import ER_graph, small_world_graph
 
 # Setup
 erdosRenyi = None
@@ -25,7 +26,7 @@ def genErdosRenyi(N=5242, E=14484):
     """
     ############################################################################
     # TODO: Your code here!
-    Graph = None
+    Graph = ER_graph(N, E)
 
     ############################################################################
     return Graph
@@ -86,9 +87,10 @@ def genSmallWorld(N=5242, E=14484):
     return type: snap.PUNGraph
     return: Small-World graph with N nodes and E edges
     """
-    Graph = genCircle(N)
-    Graph = connectNbrOfNbr(Graph, N)
-    Graph = connectRandomNodes(Graph, 4000)
+    # Graph = genCircle(N)
+    # Graph = connectNbrOfNbr(Graph, N)
+    # Graph = connectRandomNodes(Graph, 4000)
+    Graph = small_world_graph(N, E)
     return Graph
 
 
@@ -103,7 +105,7 @@ def loadCollabNet(path):
     """
     ############################################################################
     # TODO: Your code here!
-    Graph = None
+    Graph = snap.LoadEdgeList(snap.PUNGraph.New(), path, 0, 1)
 
     ############################################################################
     return Graph
